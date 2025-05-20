@@ -1,34 +1,36 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Windy Map</title>
-  <meta charset="utf-8" />
+  <title>Windy API Test</title>
   <style>
-    html, body, #windy {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-    }
+    #windy { width: 100vw; height: 100vh; }
   </style>
 </head>
 <body>
   <div id="windy"></div>
-  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+
   <script src="https://api.windy.com/assets/map-forecast/libBoot.js"></script>
   <script>
-    const options = {
-      key: "9tfTY7UVC41o3gdhQATp1VpLIOkKXIzt", // ← Replace this
-      verbose: true,
-      lat: 20.5937,
-      lon: 78.9629,
-      zoom: 5,
+    window.windyInit = function(windyAPI) {
+      const { map } = windyAPI;
+      map.setView([20, 0], 3);  // Center the map
+      console.log("Windy map initialized");
     };
 
-    windyInit(options, function (windyAPI) {
+    new Promise(function(resolve) {
+      window.windyInit = function(windyAPI) {
+        resolve(windyAPI);
+      };
+    }).then(function(windyAPI) {
       const { map } = windyAPI;
-      // Optional: Set overlays
-      windyAPI.store.set("overlay", "temp"); // or "wind"
+      map.setView([20, 0], 3);
+      console.log("Windy map loaded");
     });
+
+  </script>
+  <script src="https://api.windy.com/assets/map-forecast/libBoot.js"></script>
+  <script>
+    window.windyAPIKey = '9tfTY7UVC41o3gdhQATp1VpLIOkKXIzt';
   </script>
 </body>
 </html>
