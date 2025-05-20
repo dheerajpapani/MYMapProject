@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tirupati Weather Map</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+    #map {
+      position: absolute;
+      top: 60px;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      background-color: #f0f0f0;
+      border-bottom: 1px solid #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      z-index: 1000;
+    }
+    header h2 {
+      margin: 0;
+      font-size: 24px;
+      margin-right: auto;
+    }
+    header img {
+      height: 50px;
+      margin-left: 20px;
+      margin-right: 25px;
+    }
+    #search-container {
+      position: relative;
+      flex-grow: 1;
+      max-width: 250px;
+      margin-left: auto;
+      margin-right: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    #search-input {
+      width: 100%;
+      padding: 6px 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    #suggestions {
+      position: absolute;
+      top: 36px;
+      left: 0;
+      width: 100%;
+      background: white;
+      border: 1px solid #ccc;
+      border-top: none;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 2000;
+      display: none;
+      border-radius: 0 0 4px 4px;
+    }
+    #suggestions div {
+      padding: 8px 10px;
+      cursor: pointer;
+    }
+    #suggestions div:hover {
+      background-color: #f0f0f0;
+    }
+    #weather-info {
+      position: fixed;
+      bottom: 20px;
+      right: 2px;
+      background: #ffffffdd;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 10px 14px;
+      width: 203px;
+      font-size: 13px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 1100;
+    }
+    #weather-info h3 {
+      margin: 0 0 8px 0;
+      font-size: 16px;
+    }
+    .weather-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+    .weather-row img {
+      width: 18px;
+      height: 18px;
+      margin-right: 8px;
+    }
+    .temp {
+      margin-left: auto;
+      font-weight: bold;
+      font-size: 18px;
+      color: #d9534f;
+    }
+    .label-overlay {
+      position: absolute;
+      transform: translate(-50%, -100%);
+      font-weight: bold;
+      font-size: 13px;
+      color: black;
+      pointer-events: none;
+      white-space: nowrap;
+      z-index: 1001;
+    }
+    #locate-me {
+      margin-left: 10px;
+      padding: 6px 12px;
+      font-size: 14px;
+      border: 1px solid #007bff;
+      background-color: #007bff;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    #locate-me:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h2>Tirupati Weather Map</h2>
+    <div id="search-container">
+      <input type="text" id="search-input" placeholder="Search location..." autocomplete="off" />
+      <div id="suggestions"></div>
+    </div>
+    <button id="locate-me">Locate Me</button>
+    <img src="logo.png" alt="Logo" />
+  </header>
+
+  <div id="weather-info">
+    <h3>Weather at: <span id="location-name">Tirupati</span></h3>
+    <div id="weather-details">Loading weather data...</div>
+  </div>
+
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const tirupatiCoords = [13.6288, 79.4192];
+    const bounds = L.latLngBounds(
+      [13.6288 - 0.225, 79.4192 - 0.275],
+      [13.6288 + 0.225, 79.4192 + 0.275]
+    );
+
+    const map = L.map('map', {
+      center: tirupatiCoords,
+      zoom: 12,
+      minZoom: 11,
+      maxZoom: 17,
+      maxBounds: bounds,
+      maxBoundsViscosity: 1.0,
+      zoomControl: false
+    });
+
+    L.control.zoom({ position: 'bottomleft' }).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 17,
+      minZoom: 11
+    }).addTo(map);
+
+    let marker;
+    let labelDiv;
+
+    const customIcon = L.icon({
+      iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      shadowSize: [41, 41]
+    });
+
+    function addMarkerWithLabel(lat, lng, labelText) {
+      if (marker) map.removeLayer(marker);
+      if (labelDiv) map.getPanes().overlayPane.removeChild(labelDiv);
+
+      marker = L.marker([lat, lng], { icon: customIcon }).addTo(map);
+
+      labelDiv = document.createElement('div');
+      labelDiv.className = 'label-overlay';
+      labelDiv.textContent = labelText;
+      map.getPanes().overlayPane.appendChild(labelDiv);
+
+      function updateLabelPosition() {
+        const pos = map.latLngToLayerPoint([lat, lng]);
+        labelDiv.style.left = `${pos.x}px`;
+        labelDiv.style.top = `${pos.y - 45}px`;
+      }
+
+      map.on('move zoom', updateLabelPosition);
+      updateLabelPosition();
+    }
+
+    async function getPlaceName(lat, lng) {
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`);
+        const data = await res.json();
+        return data.display_name?.split(',')[0] || "Unknown location";
+      } catch {
+        return "Unknown location";
+      }
+    }
+
+    async function fetchWeather(lat, lng) {
+      try {
+        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true&hourly=relativehumidity_2m`);
+        const data = await res.json();
+        const weather = data.current_weather;
+        const humidity = data.hourly?.relativehumidity_2m?.[0] ?? "N/A";
+        return {
+          temp: weather.temperature,
+          wind_speed: weather.windspeed,
+          humidity: humidity
+        };
+      } catch {
+        return null;
+      }
+    }
+
+    function formatWeatherHTML(weather) {
+      if (!weather) return "Weather data unavailable";
+      return `
+        <div class="weather-row">
+          <img src="https://cdn-icons-png.flaticon.com/512/1163/1163657.png" />
+          <div>Temperature:</div>
+          <div class="temp">${weather.temp}°C</div>
+        </div>
+        <div class="weather-row">
+          <img src="https://cdn-icons-png.flaticon.com/512/1779/1779946.png" />
+          <div>Humidity:</div>
+          <div>${weather.humidity}%</div>
+        </div>
+        <div class="weather-row">
+          <img src="https://cdn-icons-png.flaticon.com/512/414/414927.png" />
+          <div>Wind Speed:</div>
+          <div>${weather.wind_speed} m/s</div>
+        </div>
+      `;
+    }
+
+    async function update(lat, lng) {
+      if (!bounds.contains([lat, lng])) {
+        alert("Click inside Tirupati area.");
+        return;
+      }
+
+      const [place, weather] = await Promise.all([
+        getPlaceName(lat, lng),
+        fetchWeather(lat, lng)
+      ]);
+
+      addMarkerWithLabel(lat, lng, place);
+      document.getElementById('location-name').textContent = place;
+      document.getElementById('weather-details').innerHTML = formatWeatherHTML(weather);
+    }
+
+    update(...tirupatiCoords);
+    map.on('click', e => update(e.latlng.lat, e.latlng.lng));
+
+    // Locate Me feature
+    document.getElementById('locate-me').addEventListener('click', () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          if (!bounds.contains([lat, lng])) {
+            alert("You're outside the Tirupati area.");
+            return;
+          }
+          map.setView([lat, lng], 14);
+          update(lat, lng);
+        }, () => alert("Unable to get location."));
+      } else {
+        alert("Geolocation is not supported by your browser.");
+      }
+    });
+
+    const searchInput = document.getElementById('search-input');
+    const suggestions = document.getElementById('suggestions');
+    let debounceTimeout;
+
+    function debounce(func, delay) {
+      clearTimeout(debounceTimeout);
+      debounceTimeout = setTimeout(func, delay);
+    }
+
+    searchInput.addEventListener('input', () => {
+      const query = searchInput.value.trim();
+      if (!query) {
+        suggestions.style.display = 'none';
+        suggestions.innerHTML = '';
+        return;
+      }
+
+      debounce(async () => {
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&addressdetails=1&limit=5`);
+          const results = await res.json();
+
+          const filtered = results.filter(place => {
+            const lat = parseFloat(place.lat);
+            const lon = parseFloat(place.lon);
+            return bounds.contains([lat, lon]);
+          });
+
+          if (filtered.length === 0) {
+            suggestions.style.display = 'none';
+            suggestions.innerHTML = '';
+            return;
+          }
+
+          suggestions.innerHTML = filtered.map(place => {
+            const name = place.display_name.split(',')[0];
+            return `<div data-lat="${place.lat}" data-lon="${place.lon}">${name}</div>`;
+          }).join('');
+
+          suggestions.style.display = 'block';
+        } catch {
+          suggestions.style.display = 'none';
+        }
+      }, 400);
+    });
+
+    suggestions.addEventListener('click', e => {
+      if (e.target.tagName === 'DIV') {
+        const lat = parseFloat(e.target.getAttribute('data-lat'));
+        const lon = parseFloat(e.target.getAttribute('data-lon'));
+        suggestions.style.display = 'none';
+        searchInput.value = e.target.textContent;
+        map.setView([lat, lon], 14);
+        update(lat, lon);
+      }
+    });
+  </script>
+</body>
+</html>
