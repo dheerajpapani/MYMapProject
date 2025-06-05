@@ -173,8 +173,8 @@
       .then(data => {
         const geoJsonLayer = L.geoJSON(data, {
           style: {
-            color: 'rgba(176,48,96, 0.5)',
-            weight: 0.75,
+            color: 'rgba(176,48,96, 0.25)',
+            weight: 1,
             fillOpacity: 0
           }
         }).addTo(map);
