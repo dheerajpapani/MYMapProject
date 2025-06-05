@@ -43,15 +43,6 @@ Simple-Weather-Dashboard/
 ```
 
 
-## 🔑 API Key Note
-
-This project uses the OpenWeatherMap API. To deploy your own version:
-- Create a free API key from [OpenWeatherMap](https://openweathermap.org/api).
-- Replace the placeholder in `script.js`:
-  ``` js
-  const apiKey = "YOUR_API_KEY_HERE";
-  
-
 ## 📦 Deployment
 
 The project is deployed using **GitHub Pages**:
