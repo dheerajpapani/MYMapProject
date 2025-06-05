@@ -162,24 +162,26 @@
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    const map = L.map('map').setView([20.5937, 78.9629], 5);
+    const map = L.map('map');
     L.control.zoom({ position: 'bottomleft' }).addTo(map);
-
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 18,
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
-
     fetch("india_border.geojson")
       .then(res => res.json())
       .then(data => {
-        L.geoJSON(data, {
-          style: {'rgba(50, 50, 50, 1)', weight: 1, fillOpacity: 0 }
+        const geoJsonLayer = L.geoJSON(data, {
+          style: {
+            color: 'rgba(50, 50, 50, 0.6)',
+            weight: 2,
+            fillOpacity: 0
+          }
         }).addTo(map);
+        map.fitBounds(geoJsonLayer.getBounds());
       });
-
+    
     let marker, labelDiv;
-
     const customIcon = L.icon({
       iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
       shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
