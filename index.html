@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Weather Map</title>
   <link rel="icon" href="weather_map_logo.png" />
   <link rel="stylesheet" href="style.css" />
@@ -13,10 +14,15 @@
     <img src="weather_map_logo.png" alt="Logo" class="logo" />
     <h2>Weather Map</h2>
     <div id="search-container">
-      <input type="text" id="search-input" placeholder="Search location..." autocomplete="off" />
+      <input type="text" id="search-input" placeholder="Search location..." autocomplete="on" />
       <div id="suggestions"></div>
     </div>
     <button id="locate-me">Locate Me</button>
+    <div id="map"></div>
+    <div id="weather-info">
+      <h3>Weather at: Default</h3>
+      <p>Loading weather data...</p>
+    </div>
   </header>
 
   <div id="map"></div>
