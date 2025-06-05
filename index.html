@@ -35,9 +35,11 @@
     }
     header h2 {
       margin: 0;
-      bottom: 5px;
       font-size: 24px;
       margin-right: auto;
+      display: flex;
+      align-items: center;
+      height: 100%;
     }
     header img {
       top:2px;
@@ -172,7 +174,7 @@
       .then(res => res.json())
       .then(data => {
         L.geoJSON(data, {
-          style: { color: '#3388ff', weight: 2 }
+          style: {'rgba(50, 50, 50, 1)', weight: 1, fillOpacity: 0 }
         }).addTo(map);
       });
 
