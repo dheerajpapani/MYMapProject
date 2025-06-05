@@ -28,7 +28,7 @@ A lightweight interactive web app that shows real-time weather data on a map usi
 
 ![Screenshot](./screenshot.png)
 
-> *Wadgaon weather example with auto-location marker and weather popup.*
+> *India's one of the city Tirupati weather example with auto-location marker and weather popup.*
 
 
 
