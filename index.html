@@ -270,7 +270,7 @@
         navigator.geolocation.getCurrentPosition(pos => {
           const lat = pos.coords.latitude;
           const lng = pos.coords.longitude;
-          map.setView([lat, lng], 12);
+          map.setView([lat, lng], 17);
           update(lat, lng);
         }, () => alert("Unable to get location."));
       } else {
