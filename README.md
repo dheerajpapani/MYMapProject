@@ -4,6 +4,7 @@
 
 A lightweight interactive web app that shows real-time weather data on a map using Leaflet.js and OpenStreetMap.
 
+
 ## 🚀 Features
 
 - 🔍 **Search Location**: Enter any place to view its weather data on the map.
@@ -14,6 +15,7 @@ A lightweight interactive web app that shows real-time weather data on a map usi
   - Humidity (%)
   - Wind Speed (m/s)
 
+
 ## 🛠️ Built With
 
 - [Leaflet.js](https://leafletjs.com/) – Open-source JavaScript library for interactive maps  
@@ -21,19 +23,24 @@ A lightweight interactive web app that shows real-time weather data on a map usi
 - [OpenWeatherMap API](https://openweathermap.org/api) – Real-time weather data provider  
 - HTML, CSS, JavaScript – Core web technologies
 
+  
 ## 📷 Screenshot
 
 ![Screenshot](./screenshot.png)
 
 > *Wadgaon weather example with auto-location marker and weather popup.*
 
+
+
 ## 📁 Folder Structure
 
 Simple-Weather-Dashboard/
 ├── index.html
+├── india_border.geojson
 ├── style.css
 ├── script.js
 ├── screenshot.png
+├── logo.png
 └── README.md
 
 
