@@ -33,15 +33,14 @@ A lightweight interactive web app that shows real-time weather data on a map usi
 
 
 ## 📁 Folder Structure
-
+```
 Simple-Weather-Dashboard/
 ├── index.html
 ├── india_border.geojson
-├── style.css
-├── script.js
 ├── screenshot.png
-├── logo.png
+├── weather_map_logo.png
 └── README.md
+```
 
 
 ## 🔑 API Key Note
